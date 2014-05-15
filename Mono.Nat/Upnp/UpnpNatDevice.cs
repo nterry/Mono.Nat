@@ -149,7 +149,7 @@ namespace Mono.Nat.Upnp
         public override IAsyncResult BeginCreatePortMap(Mapping mapping, AsyncCallback callback, object asyncState)
 		{
             CreatePortMappingMessage message = new CreatePortMappingMessage(mapping, localAddress, this);
-            return BeginMessageInternal(message, callback, mapping, EndCreatePortMapInternal);
+            return BeginMessageInternal(message, callback, asyncState, EndCreatePortMapInternal);
 		}
 
 		/// <summary>
