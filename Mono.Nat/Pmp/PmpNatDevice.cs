@@ -250,6 +250,11 @@ namespace Mono.Nat.Pmp
                     state.Success = false;
                     return;
                 }
+                catch (ObjectDisposedException)
+                {
+                    state.Success = false;
+                    return;
+                }
 			
 				if (data.Length < 16)
 					continue;
