@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/nterry/mono.nat.png?label=ready&title=Ready)](https://waffle.io/nterry/mono.nat)
 Mono.Nat
 ========
 
