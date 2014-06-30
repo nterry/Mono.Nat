@@ -1,8 +1,10 @@
 //
 // Authors:
 //   Ben Motmans <ben.motmans@gmail.com>
+//   Nicholas Terry <nick.i.terry@gmail.com>
 //
 // Copyright (C) 2007 Ben Motmans
+// Copyright (C) 2014 Nicholas Terry
 //
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
