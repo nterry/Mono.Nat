@@ -59,11 +59,15 @@ namespace Mono.Nat.Pmp
         public override IAsyncResult BeginCreatePortMap(Mapping mapping, AsyncCallback callback, object asyncState)
 		{
 			PortMapAsyncResult pmar = new PortMapAsyncResult (mapping.Protocol, mapping.PublicPort, PmpConstants.DefaultLeaseTime, callback, asyncState);
-			ThreadPool.QueueUserWorkItem (delegate {
-				try {
+			ThreadPool.QueueUserWorkItem (delegate 
+            {
+				try 
+                {
 					CreatePortMap(pmar.Mapping, true);
 					pmar.Complete();
-				} catch (Exception e) {
+				} 
+                catch (Exception e) 
+                {
 					pmar.Complete(e);
 				}
 			});
@@ -239,7 +243,8 @@ namespace Mono.Nat.Pmp
             state.UdpClientReady.WaitOne(); // Evidently UdpClient has some lazy-init Send/Receive race?
 			IPEndPoint endPoint = new IPEndPoint (localAddress, PmpConstants.ServerPort);
 			
-			while (!state.Success) {
+			while (!state.Success) 
+            {
                 byte[] data;
                 try
                 {
@@ -250,6 +255,7 @@ namespace Mono.Nat.Pmp
                     state.Success = false;
                     return;
                 }
+
                 catch (ObjectDisposedException)
                 {
                     state.Success = false;
@@ -276,17 +282,21 @@ namespace Mono.Nat.Pmp
 
 				uint lifetime = (uint)IPAddress.NetworkToHostOrder (BitConverter.ToInt32 (data, 12));
 
-				if (publicPort < 0 || privatePort < 0 || resultCode != PmpConstants.ResultCodeSuccess) {
+				if (publicPort < 0 || privatePort < 0 || resultCode != PmpConstants.ResultCodeSuccess)
+                {
 					state.Success = false;
 					return;
 				}
 				
-				if (lifetime == 0) {
+				if (lifetime == 0) 
+                {
 					//mapping was deleted
 					state.Success = true;
 					state.Mapping = null;
 					return;
-				} else {
+				} 
+                else 
+                {
 					//mapping was created
 					//TODO: verify that the private port+protocol are a match
 					Mapping mapping = state.Mapping;

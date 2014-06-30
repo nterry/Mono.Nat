@@ -27,6 +27,7 @@
 using System;
 using System.Threading;
 using Mono.Nat.Upnp;
+using System.Net;
 
 namespace Mono.Nat.Test {
 	internal class NatTest {
@@ -34,7 +35,11 @@ namespace Mono.Nat.Test {
 			NatUtility.DeviceFound += DeviceFound;
 			NatUtility.DeviceLost += DeviceLost;
 
+            NatUtility.Verbose = true;
+
 			NatUtility.StartDiscovery();
+
+            //NatUtility.DirectMap(IPAddress.Parse("192.168.1.1"), MapperType.Upnp);
 
 			Console.WriteLine("Discovery started");
 
@@ -60,10 +65,10 @@ namespace Mono.Nat.Test {
 				Console.WriteLine("Service Type: {0}", (device as UpnpNatDevice).ServiceType);
 
 				Console.WriteLine("IP: {0}", device.GetExternalIP());
-				device.CreatePortMap(new Mapping(Protocol.Tcp, 15000, 15000));
+				device.CreatePortMap(new Mapping(Protocol.Tcp, 15001, 15001));
 				Console.WriteLine("---");
 
-				return;
+				//return;
 				/******************************************/
 				/*         Advanced test suite.           */
 				/******************************************/

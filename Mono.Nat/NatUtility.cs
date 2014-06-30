@@ -1,8 +1,10 @@
 //
 // Authors:
 //   Ben Motmans <ben.motmans@gmail.com>
+//   Nicholas Terry <nick.i.terry@gmail.com>
 //
 // Copyright (C) 2007 Ben Motmans
+// Copyright (C) 2014 Nicholas Terry
 //
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
@@ -28,9 +30,12 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.NetworkInformation;
+using Mono.Nat.Pmp.Mappers;
+using Mono.Nat.Upnp.Mappers;
 
 namespace Mono.Nat
 {
@@ -66,20 +71,20 @@ namespace Mono.Nat
             controllers.Add(UpnpSearcher.Instance);
             controllers.Add(PmpSearcher.Instance);
 
-            foreach (ISearcher searcher in controllers)
-            {
-                searcher.DeviceFound += delegate(object sender, DeviceEventArgs args)
+            controllers.ForEach(searcher =>
                 {
-                    if (DeviceFound != null)
-                        DeviceFound(sender, args);
-                };
-                searcher.DeviceLost += delegate(object sender, DeviceEventArgs args)
-                {
-                    if (DeviceLost != null)
-                        DeviceLost(sender, args);
-                };
-            }
-            Thread t = new Thread((ThreadStart)delegate { SearchAndListen(); });
+                    searcher.DeviceFound += (sender, args) =>
+                    {
+                        if (DeviceFound != null)
+                            DeviceFound(sender, args);
+                    };
+                    searcher.DeviceLost += (sender, args) =>
+                    {
+                        if (DeviceLost != null)
+                            DeviceLost(sender, args);
+                    };
+                });
+            Thread t = new Thread(SearchAndListen);
             t.IsBackground = true;
             t.Start();
         }
@@ -114,7 +119,7 @@ namespace Mono.Nat
                     if (UnhandledException != null)
                         UnhandledException(typeof(NatUtility), new UnhandledExceptionEventArgs(e, false));
                 }
-				System.Threading.Thread.Sleep(10);
+				Thread.Sleep(10);
             }
 		}
 
@@ -131,6 +136,20 @@ namespace Mono.Nat
 				}
             }
         }
+
+        static void Receive(IMapper mapper, List<UdpClient> clients)
+        {
+            IPEndPoint received = new IPEndPoint(IPAddress.Parse("192.168.0.1"), 5351);
+            foreach (UdpClient client in clients)
+            {
+                if (client.Available > 0)
+                {
+                    IPAddress localAddress = ((IPEndPoint)client.Client.LocalEndPoint).Address;
+                    byte[] data = client.Receive(ref received);
+                    mapper.Handle(localAddress, data);
+                }
+            }
+        }
 		
 		public static void StartDiscovery ()
 		{
@@ -142,6 +161,33 @@ namespace Mono.Nat
             searching.Reset();
 		}
 
+        //This is for when you know the Gateway IP and want to skip the costly search...
+        public static void DirectMap(IPAddress gatewayAddress, MapperType type)
+        {
+            IMapper mapper;
+            switch (type)
+            {
+                case MapperType.Pmp:
+                    mapper = new PmpMapper();
+                    break;
+                case MapperType.Upnp:
+                    mapper = new UpnpMapper();
+                    mapper.DeviceFound += (sender, args) =>
+                    {
+                        if (DeviceFound != null)
+                            DeviceFound(sender, args);
+                    };
+                    mapper.Map(gatewayAddress);                    
+                    break;
+                default:
+                    throw new InvalidOperationException("Unsuported type given");
+
+            }
+            searching.Reset();
+            
+        }
+
+        //So then why is it here? -Nick
 		[Obsolete ("This method serves no purpose and shouldn't be used")]
 		public static IPAddress[] GetLocalAddresses (bool includeIPv6)
 		{

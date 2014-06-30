@@ -1,11 +1,7 @@
-//
+﻿//
 // Authors:
-//   Alan McGovern alan.mcgovern@gmail.com
-//   Ben Motmans <ben.motmans@gmail.com>
 //   Nicholas Terry <nick.i.terry@gmail.com>
 //
-// Copyright (C) 2006 Alan McGovern
-// Copyright (C) 2007 Ben Motmans
 // Copyright (C) 2014 Nicholas Terry
 //
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -30,21 +26,25 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Net.Sockets;
+using System.Linq;
 using System.Net;
+using System.Net.Sockets;
+using System.Text;
 
 namespace Mono.Nat
 {
-    public delegate void NatDeviceCallback(INatDevice device);
+    public enum MapperType
+    {
+        Pmp,
+        Upnp
+    }
 
-    internal interface ISearcher
+    internal interface IMapper
     {
         event EventHandler<DeviceEventArgs> DeviceFound;
-        event EventHandler<DeviceEventArgs> DeviceLost;
 
-        void Search();
-        void Handle(IPAddress localAddress, byte[] response, IPEndPoint endpoint);
-        DateTime NextSearch { get; }
+        void Map(IPAddress gatewayAddress);
+
+        void Handle(IPAddress localAddres, byte[] response);
     }
 }
