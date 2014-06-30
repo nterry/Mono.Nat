@@ -243,13 +243,20 @@ namespace Mono.Nat.Pmp
             state.UdpClientReady.WaitOne(); // Evidently UdpClient has some lazy-init Send/Receive race?
 			IPEndPoint endPoint = new IPEndPoint (localAddress, PmpConstants.ServerPort);
 			
-			while (!state.Success) {
+			while (!state.Success) 
+            {
                 byte[] data;
                 try
                 {
                     data = udpClient.Receive(ref endPoint);
                 }
                 catch (SocketException)
+                {
+                    state.Success = false;
+                    return;
+                }
+
+                catch (ObjectDisposedException)
                 {
                     state.Success = false;
                     return;
@@ -275,17 +282,21 @@ namespace Mono.Nat.Pmp
 
 				uint lifetime = (uint)IPAddress.NetworkToHostOrder (BitConverter.ToInt32 (data, 12));
 
-				if (publicPort < 0 || privatePort < 0 || resultCode != PmpConstants.ResultCodeSuccess) {
+				if (publicPort < 0 || privatePort < 0 || resultCode != PmpConstants.ResultCodeSuccess)
+                {
 					state.Success = false;
 					return;
 				}
 				
-				if (lifetime == 0) {
+				if (lifetime == 0) 
+                {
 					//mapping was deleted
 					state.Success = true;
 					state.Mapping = null;
 					return;
-				} else {
+				} 
+                else 
+                {
 					//mapping was created
 					//TODO: verify that the private port+protocol are a match
 					Mapping mapping = state.Mapping;
