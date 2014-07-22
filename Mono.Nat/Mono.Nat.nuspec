@@ -20,6 +20,6 @@ Added unicast support for discovery phase (supported by UPnP 1.1 compliant IGDs 
 	</releaseNotes>
 
         <copyright>Copyright 2006 - 2007 Alan McGovern and Ben Motmans. See LICENSE for more details.</copyright>
-        <tags>nat nat-transversal upnp mono.nat mono</tags>
+        <tags>nat nat-transversal upnp mono.nat mono pmp nat-pmp port mapping protocol universal plug and play igd internet gateway device router</tags>
     </metadata>
 </package>
