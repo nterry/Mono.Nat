@@ -1,0 +1,6 @@
+language: csharp
+solution: solution-name.sln
+mono:
+  - latest
+  - 3.8.0
+  - 3.2.8
