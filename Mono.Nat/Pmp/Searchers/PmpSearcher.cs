@@ -140,5 +140,10 @@ namespace Mono.Nat
             if (DeviceFound != null)
                 DeviceFound(this, args);
         }
+
+        public NatProtocol Protocol
+        {
+            get { return NatProtocol.Pmp; }
+        }
     }
 }

@@ -51,7 +51,9 @@ namespace Mono.Nat
 		private static List<ISearcher> controllers;
 		private static bool verbose;
 
-		public static TextWriter Logger
+        public static List<NatProtocol> EnabledProtocols { get; set; }
+
+	    public static TextWriter Logger
 		{
 			get { return logger; }
 			set { logger = value; }
@@ -65,6 +67,12 @@ namespace Mono.Nat
 		
         static NatUtility()
         {
+            EnabledProtocols = new List<NatProtocol>
+            {
+                NatProtocol.Upnp,
+                NatProtocol.Pmp
+            };
+
             searching = new ManualResetEvent(false);
 
             controllers = new List<ISearcher>();
@@ -104,11 +112,19 @@ namespace Mono.Nat
 
                 try
                 {
-					Receive(UpnpSearcher.Instance, UpnpSearcher.sockets);
-					Receive(PmpSearcher.Instance, PmpSearcher.sockets);
+                    var enabledProtocols = EnabledProtocols.ToList();
+
+                    if (enabledProtocols.Contains(UpnpSearcher.Instance.Protocol))
+                    {
+                        Receive(UpnpSearcher.Instance, UpnpSearcher.sockets);
+                    }
+                    if (enabledProtocols.Contains(PmpSearcher.Instance.Protocol))
+                    {
+                        Receive(PmpSearcher.Instance, PmpSearcher.sockets);
+                    }
 
                     foreach (ISearcher s in controllers)
-                        if (s.NextSearch < DateTime.Now)
+                        if (s.NextSearch < DateTime.Now && enabledProtocols.Contains(s.Protocol))
                         {
                             Log("Searching for: {0}", s.GetType().Name);
 							s.Search();
@@ -220,5 +236,20 @@ namespace Mono.Nat
 				return false;
 			}
 		}
+
+	    public static void Handle(IPAddress localAddress, byte[] response, IPEndPoint endpoint, NatProtocol protocol)
+	    {
+	        switch (protocol)
+	        {
+                case NatProtocol.Upnp:
+	                UpnpSearcher.Instance.Handle(localAddress, response, endpoint);
+	                break;
+                case NatProtocol.Pmp:
+	                PmpSearcher.Instance.Handle(localAddress, response, endpoint);
+	                break;
+	            default:
+	                throw new ArgumentException("Unexpected protocol: " + protocol);
+	        }
+	    }
 	}
 }
