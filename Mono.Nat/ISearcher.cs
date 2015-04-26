@@ -46,5 +46,6 @@ namespace Mono.Nat
         void Search();
         void Handle(IPAddress localAddress, byte[] response, IPEndPoint endpoint);
         DateTime NextSearch { get; }
+        NatProtocol Protocol { get; }
     }
 }

@@ -72,6 +72,7 @@
     <Compile Include="INatDevice.cs" />
     <Compile Include="ISearcher.cs" />
     <Compile Include="Mapping.cs" />
+    <Compile Include="NatProtocol.cs" />
     <Compile Include="NatUtility.cs" />
     <Compile Include="Pmp\Mappers\PmpMapper.cs" />
     <Compile Include="Pmp\Pmp.cs" />
